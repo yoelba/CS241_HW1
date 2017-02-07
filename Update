@@ -1,0 +1,87 @@
+// Kristina Kolibab an Yoel Ben-Avraham
+// Assignment 1
+// 1.16.17
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define EOL '\n'
+
+//USE A LINKED LIST :)
+
+int spaceCounter(const char *currentLine){
+//Pass in a character array terminated by a 'endline' character. Returns the number of spaces in the line.
+        int spcCtr = 0;
+        for(int i = 0; i < strlen(currentLine); i++){
+                if(currentLine[i] == ' '){
+                        spcCtr++; // this correctly counts number of spaces
+                }
+        }
+        return spcCtr;
+}
+
+int main(){
+
+        FILE *inputFile; // pointer to input file
+        //inputFile = fopen("hollow.txt", "r"); //ALLOW USER TO INPUT FILE NAME IN FUTURE!
+        inputFile = fopen("HollowMen.txt", "r");
+
+        FILE *outputFile; // pointer to output file
+        outputFile = fopen("formattedText.txt", "w"); //ALLOW USER TO INPUT FILE NAME IN FUTURE
+
+        int lineLength = 20;// a l l o w   u s e r   i n p u t
+
+        char currentWord[20]; // array of characters for current word in current line 
+        char currentLine[60]; // array of characters for entire line
+
+        // resets current line so the next line does not go on top of it
+        memset(currentLine, 0, 100);
+
+        while(fscanf(inputFile, "%s", currentWord) != EOF){
+        
+        //fputs(currentLine, outputFile); //Put the word we read into the character array MyString
+                if( (strlen(currentLine)+strlen(currentWord)) <= (lineLength - 1) ){
+
+                        //so the words are separated
+                        if(strlen(currentLine) != 0){
+                                strcat(currentLine, " " );
+                        }
+                        strcat(currentLine, currentWord); //Add the word to the current line if it's short enough.
+                }else{
+                        strcat(currentLine, "\n"); //Append endline character, the final capstone on the contruction of each line!
+                        printf("Line: |%s|\n", currentLine);
+
+                        // This is where we add the spaces
+                        div_t divInfo; //Gotta get me some quotient and remainder you know
+                        int spcCnt = spaceCounter(currentLine);
+                        divInfo = div( (lineLength - strlen(currentLine)), spcCnt);
+                        int i = 0;
+                        int remainders = divInfo.rem;
+                        while(currentLine[i] != '\n'){
+                                if(currentLine[i] == ' '){
+                                        for(int j = 0; j <= ( (divInfo.quot/spcCnt)+remainders ); j++){
+                                                fputc(' ', outputFile);
+                                        }
+                                }else{
+                                        fputc(currentLine[i], outputFile);
+                                }
+                                i++;
+                        }
+
+                        fputc('\n', outputFile);
+
+                        memset(currentLine, 0, 200); //clear the line, for it must be reborn anew as the next line, phoenix-like!
+                        strcat(currentLine, currentWord); //and thus, we immediately begin the contruction of this next line.
+
+                }
+
+        }
+        fputs(currentLine, outputFile);
+        fclose(inputFile);
+        fclose(outputFile);
+
+        return 0;
+}
+
+
